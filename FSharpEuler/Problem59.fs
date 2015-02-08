@@ -1,5 +1,7 @@
 ﻿module Problem59
 
+open System
+
 let isValidCharacter n = 32 <= n && n <= 122 && n <> 35 && n <> 47
 
 let rec cartesianProduct LL = 
@@ -7,27 +9,26 @@ let rec cartesianProduct LL =
     | [] -> Seq.singleton []
     | L::Ls -> seq {for x in L do for xs in cartesianProduct Ls -> x::xs}
 
-let decode (text: list<int>) (key: list<int>) =
-    seq { 0..text.Length - 1}
-    |> Seq.map(fun(i) -> key.[i % key.Length] ^^^ text.[i])
+let decode text key =
+    seq { 0 .. List.length text - 1 }
+    |> Seq.map(fun(i) -> List.nth key (i % List.length key) ^^^ List.nth text i)
     |> Seq.takeWhile isValidCharacter
-    |> Seq.toList
 
-let sameLengthAs<'T> (first: list<'T>) (second: list<'T>) =
-    first.Length = second.Length
+let sameLengthAs first second =
+    Seq.length first = Seq.length second
 
 let solve59() =
     let text =
-        System.IO.File.OpenText("cipher.txt").ReadToEnd().Split(',') 
-        |> Seq.map System.Int32.Parse
+        IO.File.OpenText("cipher.txt").ReadToEnd().Split(',') 
+        |> Seq.map Int32.Parse
         |> Seq.toList
 
     cartesianProduct [seq { 'a' .. 'z'};seq { 'a' .. 'z' };seq { 'a' .. 'z' }] 
-        |> Seq.map (Seq.map int)            
+        |> Seq.map (Seq.map int)          
         |> Seq.map Seq.toList
         |> Seq.map (decode text)                
         |> Seq.filter (sameLengthAs text)
         |> Seq.map Seq.sum
         |> Seq.iter(printfn "%i")
-    System.Console.ReadLine() |> ignore
+    Console.ReadLine() |> ignore
     0
